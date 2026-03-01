@@ -463,18 +463,25 @@ function EventCard({ lesson, onEdit, onView }: { lesson: Lesson, onEdit?: () => 
         {lesson.title}
       </div>
       
-      {lesson.course && lesson.year && (
-        <div className="inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold whitespace-nowrap w-fit" style={{ backgroundColor: courseColor.borderColor, color: courseColor.textHex }}>
-          {getCourseCode(lesson.course)} {lesson.year}
-        </div>
-      )}
+      <div className="flex flex-wrap gap-1.5 mt-1">
+        {lesson.course && lesson.year && (
+          <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold whitespace-nowrap" style={{ backgroundColor: courseColor.borderColor, color: courseColor.textHex }}>
+            {getCourseCode(lesson.course)} {lesson.year}
+          </span>
+        )}
+        <span
+          className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold whitespace-nowrap"
+          style={{
+            backgroundColor: lesson.group ? courseColor.borderColor : 'rgba(107, 114, 128, 0.25)',
+            color: lesson.group ? courseColor.textHex : '#4b5563',
+          }}
+        >
+          {lesson.group ? `Gruppo ${lesson.group}` : 'Tutti'}
+        </span>
+      </div>
       
       <div className="mt-auto text-xs opacity-80 truncate" style={{ color: courseColor.textHex }}>
         Prof. {lesson.professor}
-      </div>
-      
-      <div className="text-[10px] font-semibold opacity-80" style={{ color: courseColor.textHex }}>
-        {lesson.group ? `Gruppo ${lesson.group}` : 'Tutti'}
       </div>
     </div>
   )

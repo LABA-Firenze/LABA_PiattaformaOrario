@@ -107,27 +107,25 @@ export default function ListView({
                     {formatTime(lesson.startTime)} - {formatTime(lesson.endTime)}
                   </div>
                   {lesson.course && lesson.year && (
-                    <div 
-                      className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-semibold whitespace-nowrap flex-shrink-0"
+                    <span 
+                      className="inline-flex px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-semibold whitespace-nowrap"
                       style={{ 
                         backgroundColor: courseColor.borderColor,
                         color: courseColor.textHex 
                       }}
                     >
                       {getCourseCode(lesson.course)} {lesson.year}
-                    </div>
+                    </span>
                   )}
-                  {lesson.group && (
-                    <div 
-                      className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-semibold whitespace-nowrap flex-shrink-0"
-                      style={{ 
-                        backgroundColor: courseColor.borderColor,
-                        color: courseColor.textHex 
-                      }}
-                    >
-                      Gruppo {lesson.group}
-                    </div>
-                  )}
+                  <span
+                    className="inline-flex px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-semibold whitespace-nowrap"
+                    style={{ 
+                      backgroundColor: lesson.group ? courseColor.borderColor : 'rgba(107, 114, 128, 0.25)',
+                      color: lesson.group ? courseColor.textHex : '#4b5563',
+                    }}
+                  >
+                    {lesson.group ? `Gruppo ${lesson.group}` : 'Tutti'}
+                  </span>
                 </div>
                 <div 
                   className="px-2 sm:px-3 py-1 rounded-md text-xs sm:text-sm font-medium whitespace-nowrap flex-shrink-0"

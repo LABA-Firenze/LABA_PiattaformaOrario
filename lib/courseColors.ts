@@ -134,12 +134,12 @@ const courseColorMap: Record<string, CourseColor> = {
     textHex: '#6b21a8',
   },
   'Fashion Design': {
-    bg: 'bg-pink-50',
-    text: 'text-pink-700',
-    border: 'border-pink-300',
-    borderColor: '#f9a8d4',
-    bgHex: '#fdf2f8',
-    textHex: '#be185d',
+    bg: 'bg-fuchsia-50',
+    text: 'text-fuchsia-700',
+    border: 'border-fuchsia-300',
+    borderColor: '#f0abfc',
+    bgHex: '#fdf4ff',
+    textHex: '#a21caf',
   },
   'Fotografia': {
     bg: 'bg-amber-50',
