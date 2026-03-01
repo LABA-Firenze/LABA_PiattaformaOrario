@@ -32,19 +32,19 @@ export default function ViewSelector({ view, onViewChange }: ViewSelectorProps) 
   ]
 
   return (
-    <div className="flex gap-2 bg-white rounded-full p-1 shadow-sm">
+    <div className="flex gap-1 sm:gap-2 bg-gray-100 rounded-xl p-1 sm:p-1 shadow-inner w-full sm:w-auto">
       {views.map((v) => (
         <button
           key={v.value}
           onClick={() => onViewChange(v.value)}
-          className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 flex items-center gap-1.5 sm:gap-2 ${
+          className={`px-4 py-2.5 sm:py-2 rounded-full text-sm font-medium transition-all duration-200 flex items-center gap-2 min-w-0 flex-1 sm:flex-initial ${
             view === v.value
-              ? 'bg-laba-primary text-white shadow-sm'
-              : 'text-gray-700 hover:bg-gray-100 hover:scale-105 active:scale-95'
+              ? 'bg-white text-laba-primary shadow-sm'
+              : 'text-gray-600 hover:bg-gray-50 active:bg-gray-100'
           }`}
         >
           {v.icon}
-          <span className="hidden sm:inline">{v.label}</span>
+          <span>{v.label}</span>
         </button>
       ))}
     </div>

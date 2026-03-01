@@ -1,9 +1,8 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { format } from 'date-fns'
-import { it } from 'date-fns/locale'
 import { formatProfessorLines } from '@/lib/formatting'
+import { getCourseColor, getCourseCode } from '@/lib/courseColors'
 
 interface Lesson {
   id: string
@@ -105,55 +104,79 @@ export default function SearchOverlay({ isOpen, onClose, onSelectLesson, lessons
                 <p className="text-xs sm:text-sm mt-2">Prova con altri termini di ricerca</p>
               </div>
             ) : (
-              <div className="divide-y divide-gray-100">
-                {filteredLessons.map((lesson) => (
-                  <button
-                    key={lesson.id}
-                    onClick={() => handleSelectLesson(lesson)}
-                    className="w-full p-3 sm:p-4 text-left hover:bg-gray-50 active:bg-gray-100 smooth-transition"
-                  >
-                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
-                      <div className="flex-1 min-w-0">
-                        <div className="font-bold text-base sm:text-lg text-laba-primary mb-1.5 break-words">
-                          {lesson.title}
-                        </div>
-                        <div className="text-xs sm:text-sm text-gray-600 space-y-1">
-                          <div className="flex flex-wrap items-center gap-1 sm:gap-2">
-                            <span className="font-medium whitespace-nowrap">Giorno:</span>
-                            <span>{DAYS[lesson.dayOfWeek]}</span>
+              <div className="divide-y divide-slate-100">
+                {filteredLessons.map((lesson) => {
+                  const courseColor = getCourseColor(lesson.course, lesson.year)
+                  const formatTime = (t: string) => t.split(':').slice(0, 2).join(':')
+                  return (
+                    <button
+                      key={lesson.id}
+                      onClick={() => handleSelectLesson(lesson)}
+                      className="w-full p-3 sm:p-4 text-left hover:opacity-95 active:opacity-90 smooth-transition"
+                      style={{ backgroundColor: courseColor.borderColor + '0a' }}
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
+                        <div className="flex-1 min-w-0">
+                          {/* Pill: Orario, Corso, Gruppo */}
+                          <div className="flex flex-wrap items-center gap-2 mb-2">
+                            <span
+                              className="px-2.5 py-1 rounded-lg font-semibold text-xs whitespace-nowrap"
+                              style={{ backgroundColor: courseColor.borderColor + '25', color: courseColor.textHex }}
+                            >
+                              {formatTime(lesson.startTime)} – {formatTime(lesson.endTime)}
+                            </span>
+                            {lesson.course && (
+                              <span
+                                className="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap"
+                                style={{ backgroundColor: courseColor.borderColor, color: courseColor.textHex }}
+                              >
+                                {getCourseCode(lesson.course)}{lesson.year ? ` ${lesson.year}` : ''}
+                              </span>
+                            )}
+                            <span
+                              className="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap"
+                              style={{
+                                backgroundColor: lesson.group ? courseColor.borderColor : 'rgba(107, 114, 128, 0.2)',
+                                color: lesson.group ? courseColor.textHex : '#4b5563',
+                              }}
+                            >
+                              {lesson.group ? `Gruppo ${lesson.group}` : 'Tutti'}
+                            </span>
+                            <span
+                              className="px-2.5 py-1 rounded-lg text-xs font-medium whitespace-nowrap"
+                              style={{ backgroundColor: courseColor.bgHex, color: courseColor.textHex }}
+                            >
+                              {lesson.classroom}
+                            </span>
                           </div>
-                          <div className="flex flex-wrap items-center gap-1 sm:gap-2">
-                            <span className="font-medium whitespace-nowrap">Orario:</span>
-                            <span className="whitespace-nowrap">{lesson.startTime.split(':').slice(0, 2).join(':')} - {lesson.endTime.split(':').slice(0, 2).join(':')}</span>
-                          </div>
-                          <div className="flex flex-wrap items-center gap-1 sm:gap-2">
-                            <span className="font-medium whitespace-nowrap">Aula:</span>
-                            <span>{lesson.classroom}</span>
-                          </div>
-                          <div className="flex flex-wrap items-start gap-1 sm:gap-2">
-                            <span className="font-medium whitespace-nowrap">Professore:</span>
+                          <h3
+                            className="font-bold text-base sm:text-lg mb-2 break-words"
+                            style={{ color: courseColor.textHex }}
+                          >
+                            {lesson.title}
+                          </h3>
+                          <div className="text-xs sm:text-sm text-slate-600">
+                            <span className="font-medium">{DAYS[lesson.dayOfWeek]}</span>
+                            <span className="mx-1">·</span>
                             <span className="leading-tight">
                               {formatProfessorLines(lesson.professor).map((line, i) => (
-                                <span key={i} className="block">{line}</span>
+                                <span key={i}>{i > 0 ? ' ' : ''}{line}</span>
                               ))}
                             </span>
                           </div>
-                          {lesson.course && (
-                            <div className="flex flex-wrap items-center gap-1 sm:gap-2">
-                              <span className="font-medium whitespace-nowrap">Corso:</span>
-                              <span>{lesson.course} {lesson.year && `- ${lesson.year}° Anno`}</span>
-                            </div>
-                          )}
+                        </div>
+                        <div className="flex-shrink-0 sm:text-right pt-1 sm:pt-0">
+                          <span
+                            className="inline-flex items-center px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-lg"
+                            style={{ backgroundColor: courseColor.borderColor, color: courseColor.textHex }}
+                          >
+                            Vai
+                          </span>
                         </div>
                       </div>
-                      <div className="flex-shrink-0 sm:text-right pt-1 sm:pt-0">
-                        <div className="inline-block px-3 sm:px-4 py-1.5 sm:py-2 bg-laba-primary text-white text-xs sm:text-sm font-medium rounded-lg sm:rounded-full">
-                          Vai
-                        </div>
-                      </div>
-                    </div>
-                  </button>
-                ))}
+                    </button>
+                  )
+                })}
               </div>
             )}
           </div>

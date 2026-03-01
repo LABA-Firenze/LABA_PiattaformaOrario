@@ -10,6 +10,7 @@ interface LessonFiltersProps {
   onCourseChange: (course: string) => void
   onYearChange: (year: number | null) => void
   onReset: () => void
+  compact?: boolean
 }
 
 export default function LessonFilters({
@@ -19,6 +20,7 @@ export default function LessonFilters({
   onCourseChange,
   onYearChange,
   onReset,
+  compact = false,
 }: LessonFiltersProps) {
   // Filtra i corsi disponibili per la sede selezionata
   const availableCourses = getCoursesForLocation(location)
@@ -32,10 +34,10 @@ export default function LessonFilters({
   const availableYears = course ? getYearsForCourse(course as any) : []
 
   return (
-    <div className="flex items-center gap-2 flex-wrap">
+    <div className={`flex items-center gap-2 ${compact ? 'flex-col' : 'flex-wrap'}`}>
       {/* Filtro Corso */}
-      <div className="flex items-center gap-1.5">
-        <label htmlFor="filterCourse" className="text-xs font-medium text-gray-600 whitespace-nowrap">
+      <div className={`flex items-center gap-1.5 ${compact ? 'w-full' : ''}`}>
+        <label htmlFor="filterCourse" className="text-xs font-medium text-gray-600 whitespace-nowrap shrink-0">
           Corso:
         </label>
         <select
@@ -43,9 +45,9 @@ export default function LessonFilters({
           value={course || ''}
           onChange={(e) => {
             onCourseChange(e.target.value)
-            onYearChange(null) // Reset anno quando cambia corso
+            onYearChange(null)
           }}
-          className="px-3 py-1.5 rounded-md text-sm border border-gray-300 bg-white text-gray-700 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent min-w-[160px]"
+          className={`px-3 py-2 rounded-lg text-sm border border-gray-200 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-laba-primary/30 focus:border-laba-primary ${compact ? 'w-full flex-1' : 'min-w-[160px]'}`}
         >
           <option value="">Tutti i corsi</option>
           {courseOptions.map((c) => (
@@ -57,8 +59,8 @@ export default function LessonFilters({
       </div>
 
       {/* Filtro Anno */}
-      <div className="flex items-center gap-1.5">
-        <label htmlFor="filterYear" className="text-xs font-medium text-gray-600 whitespace-nowrap">
+      <div className={`flex items-center gap-1.5 ${compact ? 'w-full' : ''}`}>
+        <label htmlFor="filterYear" className="text-xs font-medium text-gray-600 whitespace-nowrap shrink-0">
           Anno:
         </label>
         <select
@@ -66,7 +68,7 @@ export default function LessonFilters({
           value={year?.toString() || ''}
           onChange={(e) => onYearChange(e.target.value ? parseInt(e.target.value) : null)}
           disabled={!course}
-          className="px-3 py-1.5 rounded-md text-sm border border-gray-300 bg-white text-gray-700 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed min-w-[110px]"
+          className={`px-3 py-2 rounded-lg text-sm border border-gray-200 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-laba-primary/30 focus:border-laba-primary disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed ${compact ? 'w-full flex-1' : 'min-w-[110px]'}`}
         >
           <option value="">Tutti gli anni</option>
           {availableYears.map((y) => (

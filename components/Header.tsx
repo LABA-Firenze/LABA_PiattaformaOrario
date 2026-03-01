@@ -15,6 +15,7 @@ interface HeaderProps {
 export default function Header({ selectedLocation, onLocationChange }: HeaderProps) {
   const router = useRouter()
   const pathname = usePathname()
+  const isHome = pathname === '/'
   
   // Estrai la sede dall'URL se disponibile
   const getLocationFromPath = (): Location => {
@@ -92,55 +93,57 @@ export default function Header({ selectedLocation, onLocationChange }: HeaderPro
               />
             </Link>
             
-            {/* Selettore Sede al centro - Mobile: dropdown, Desktop: bottoni */}
-            <div className="hidden sm:flex items-center gap-2 flex-1 justify-center">
-              <button
-                onClick={() => handleLocationChange('badia-ripoli')}
-                className={`px-3 py-1.5 rounded-lg font-medium text-xs sm:text-sm transition-all whitespace-nowrap ${
-                  currentLocation === 'badia-ripoli'
-                    ? 'bg-white text-[#033157] shadow-md'
-                    : 'bg-white/20 text-white hover:bg-white/30'
-                }`}
-              >
-                Piazza di Badia a Ripoli
-              </button>
-              <button
-                onClick={() => handleLocationChange('via-vecchietti')}
-                className={`px-3 py-1.5 rounded-lg font-medium text-xs sm:text-sm transition-all whitespace-nowrap ${
-                  currentLocation === 'via-vecchietti'
-                    ? 'bg-white text-[#033157] shadow-md'
-                    : 'bg-white/20 text-white hover:bg-white/30'
-                }`}
-              >
-                Via de&apos; Vecchietti
-              </button>
-            </div>
-            
-            {/* Mobile: Selettore Sede compatto */}
-            <div className="sm:hidden flex items-center gap-1.5 flex-1 min-w-0 justify-center">
-              <button
-                onClick={() => handleLocationChange('badia-ripoli')}
-                className={`px-2 py-1 rounded-md font-medium text-[10px] transition-all truncate max-w-[45%] ${
-                  currentLocation === 'badia-ripoli'
-                    ? 'bg-white text-[#033157] shadow-md'
-                    : 'bg-white/20 text-white hover:bg-white/30'
-                }`}
-                title="Piazza di Badia a Ripoli"
-              >
-                Badia
-              </button>
-              <button
-                onClick={() => handleLocationChange('via-vecchietti')}
-                className={`px-2 py-1 rounded-md font-medium text-[10px] transition-all truncate max-w-[45%] ${
-                  currentLocation === 'via-vecchietti'
-                    ? 'bg-white text-[#033157] shadow-md'
-                    : 'bg-white/20 text-white hover:bg-white/30'
-                }`}
-                title={"Via de' Vecchietti"}
-              >
-                Vecchietti
-              </button>
-            </div>
+            {/* Selettore Sede al centro - non mostrare in home (ci sono le card sotto) */}
+            {!isHome && (
+              <>
+                <div className="hidden sm:flex items-center gap-2 flex-1 justify-center">
+                  <button
+                    onClick={() => handleLocationChange('badia-ripoli')}
+                    className={`px-3 py-1.5 rounded-lg font-medium text-xs sm:text-sm transition-all whitespace-nowrap ${
+                      currentLocation === 'badia-ripoli'
+                        ? 'bg-white text-[#033157] shadow-md'
+                        : 'bg-white/20 text-white hover:bg-white/30'
+                    }`}
+                  >
+                    Piazza di Badia a Ripoli
+                  </button>
+                  <button
+                    onClick={() => handleLocationChange('via-vecchietti')}
+                    className={`px-3 py-1.5 rounded-lg font-medium text-xs sm:text-sm transition-all whitespace-nowrap ${
+                      currentLocation === 'via-vecchietti'
+                        ? 'bg-white text-[#033157] shadow-md'
+                        : 'bg-white/20 text-white hover:bg-white/30'
+                    }`}
+                  >
+                    Via de&apos; Vecchietti
+                  </button>
+                </div>
+                <div className="sm:hidden flex items-center gap-1.5 flex-1 min-w-0 justify-center">
+                  <button
+                    onClick={() => handleLocationChange('badia-ripoli')}
+                    className={`px-2 py-1 rounded-md font-medium text-[10px] transition-all truncate max-w-[45%] ${
+                      currentLocation === 'badia-ripoli'
+                        ? 'bg-white text-[#033157] shadow-md'
+                        : 'bg-white/20 text-white hover:bg-white/30'
+                    }`}
+                    title="Piazza di Badia a Ripoli"
+                  >
+                    Badia
+                  </button>
+                  <button
+                    onClick={() => handleLocationChange('via-vecchietti')}
+                    className={`px-2 py-1 rounded-md font-medium text-[10px] transition-all truncate max-w-[45%] ${
+                      currentLocation === 'via-vecchietti'
+                        ? 'bg-white text-[#033157] shadow-md'
+                        : 'bg-white/20 text-white hover:bg-white/30'
+                    }`}
+                    title={"Via de' Vecchietti"}
+                  >
+                    Vecchietti
+                  </button>
+                </div>
+              </>
+            )}
             
             {/* Menu hamburger a destra */}
             <nav className="flex items-center flex-shrink-0">
