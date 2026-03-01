@@ -188,37 +188,42 @@ export default function CalendarView({ initialLocation }: CalendarViewProps = {}
     <div className="flex flex-col h-full">
       {/* Barra superiore strumenti - Mobile: 2 righe collassabili | Desktop: tutto su una riga */}
       <div className="mb-4 bg-white rounded-xl shadow-sm border border-gray-100 p-3 sm:p-4 flex-shrink-0">
-        {/* Desktop: Cerca + ViewSelector + Filtri + Aggiungi sulla stessa riga */}
-        <div className="hidden sm:flex flex-wrap items-center gap-3">
-          <button
-            onClick={() => setShowSearch(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 text-sm font-medium transition-colors border border-slate-200 min-w-[180px] max-w-[220px]"
-          >
-            <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <span>Cerca lezione</span>
-          </button>
-          <ViewSelector view={viewMode} onViewChange={setViewMode} />
-          <LessonFilters
-            course={filterCourse}
-            year={filterYear}
-            location={selectedLocation}
-            onCourseChange={setFilterCourse}
-            onYearChange={setFilterYear}
-            onReset={() => { setFilterCourse(''); setFilterYear(null) }}
-          />
-          {isAuthenticated && (
+        {/* Desktop: centrato, ordine ViewSelector | Cerca | Filtri, Aggiungi a destra */}
+        <div className="hidden sm:flex items-center justify-between gap-4">
+          <div className="flex-1 min-w-0" />
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <ViewSelector view={viewMode} onViewChange={setViewMode} />
             <button
-              onClick={() => { setEditingLesson(null); setShowForm(true) }}
-              className="ml-auto px-4 py-2 rounded-lg bg-green-500 text-white text-sm font-medium shadow-sm hover:bg-green-600 transition-colors flex items-center gap-2"
+              onClick={() => setShowSearch(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 text-sm font-medium transition-colors border border-slate-200 min-w-[260px] max-w-[320px]"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
-              Aggiungi
+              <span>Cerca lezione</span>
             </button>
-          )}
+            <LessonFilters
+              course={filterCourse}
+              year={filterYear}
+              location={selectedLocation}
+              onCourseChange={setFilterCourse}
+              onYearChange={setFilterYear}
+              onReset={() => { setFilterCourse(''); setFilterYear(null) }}
+            />
+          </div>
+          <div className="flex-1 flex justify-end min-w-0">
+            {isAuthenticated && (
+              <button
+                onClick={() => { setEditingLesson(null); setShowForm(true) }}
+                className="px-4 py-2 rounded-lg bg-green-500 text-white text-sm font-medium shadow-sm hover:bg-green-600 transition-colors flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Aggiungi
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Mobile: Cerca + ViewSelector riga 1, poi Filtri collassabili */}

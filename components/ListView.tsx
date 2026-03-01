@@ -89,7 +89,7 @@ export default function ListView({
           <div
             key={lesson.id}
             onClick={handleClick}
-            className="rounded-lg border-l-4 border shadow-sm hover:shadow-md transition-all cursor-pointer overflow-hidden group"
+            className="rounded-xl border-l-4 shadow-sm hover:shadow-md transition-all cursor-pointer overflow-hidden group"
             style={{
               borderLeftColor: courseColor.borderColor,
               backgroundColor: courseColor.borderColor + '12',
