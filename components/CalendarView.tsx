@@ -186,28 +186,59 @@ export default function CalendarView({ initialLocation }: CalendarViewProps = {}
 
   return (
     <div className="flex flex-col h-full">
-      {/* Barra superiore strumenti - Mobile first */}
+      {/* Barra superiore strumenti - Mobile: 2 righe collassabili | Desktop: tutto su una riga */}
       <div className="mb-4 bg-white rounded-xl shadow-sm border border-gray-100 p-3 sm:p-4 flex-shrink-0">
-        {/* Riga 1: Cerca + Vista (sempre visibili) */}
-        <div className="flex gap-3 items-stretch">
+        {/* Desktop: Cerca + ViewSelector + Filtri + Aggiungi sulla stessa riga */}
+        <div className="hidden sm:flex flex-wrap items-center gap-3">
           <button
             onClick={() => setShowSearch(true)}
-            className="flex-1 sm:flex-initial sm:min-w-[160px] sm:max-w-[220px] min-w-0 flex items-center justify-center gap-2 px-4 py-3 sm:py-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 text-sm font-medium transition-colors border border-slate-200 active:scale-[0.98]"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 text-sm font-medium transition-colors border border-slate-200 min-w-[180px] max-w-[220px]"
           >
             <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
-            <span className="truncate">Cerca lezione</span>
+            <span>Cerca lezione</span>
           </button>
-          <div className="w-36 sm:w-auto sm:min-w-[180px] flex-shrink-0">
-            <ViewSelector view={viewMode} onViewChange={setViewMode} />
-          </div>
+          <ViewSelector view={viewMode} onViewChange={setViewMode} />
+          <LessonFilters
+            course={filterCourse}
+            year={filterYear}
+            location={selectedLocation}
+            onCourseChange={setFilterCourse}
+            onYearChange={setFilterYear}
+            onReset={() => { setFilterCourse(''); setFilterYear(null) }}
+          />
+          {isAuthenticated && (
+            <button
+              onClick={() => { setEditingLesson(null); setShowForm(true) }}
+              className="ml-auto px-4 py-2 rounded-lg bg-green-500 text-white text-sm font-medium shadow-sm hover:bg-green-600 transition-colors flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Aggiungi
+            </button>
+          )}
         </div>
 
-        {/* Riga 2: Filtri - Mobile collassabile, Desktop sempre visibili */}
-        <div className="mt-3 pt-3 border-t border-gray-100">
+        {/* Mobile: Cerca + ViewSelector riga 1, poi Filtri collassabili */}
+        <div className="sm:hidden space-y-3">
+          <div className="flex gap-3 items-stretch">
+            <button
+              onClick={() => setShowSearch(true)}
+              className="flex-1 min-w-0 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 text-sm font-medium transition-colors border border-slate-200 active:scale-[0.98]"
+            >
+              <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <span className="truncate">Cerca lezione</span>
+            </button>
+            <div className="w-36 flex-shrink-0">
+              <ViewSelector view={viewMode} onViewChange={setViewMode} />
+            </div>
+          </div>
           {/* Mobile: bottone Filtri che espande + Aggiungi */}
-          <div className="sm:hidden space-y-2">
+          <div className="space-y-2">
             <div className="flex gap-2">
               <button
                 onClick={() => setFiltersOpen(!filtersOpen)}
@@ -255,28 +286,6 @@ export default function CalendarView({ initialLocation }: CalendarViewProps = {}
             )}
           </div>
 
-          {/* Desktop: filtri sempre visibili inline */}
-          <div className="hidden sm:flex items-center justify-between gap-3 flex-wrap">
-            <LessonFilters
-              course={filterCourse}
-              year={filterYear}
-              location={selectedLocation}
-              onCourseChange={setFilterCourse}
-              onYearChange={setFilterYear}
-              onReset={() => { setFilterCourse(''); setFilterYear(null) }}
-            />
-            {isAuthenticated && (
-              <button
-                onClick={() => { setEditingLesson(null); setShowForm(true) }}
-                className="px-4 py-2 rounded-lg bg-green-500 text-white text-sm font-medium shadow-sm hover:bg-green-600 transition-colors flex items-center gap-2"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                Aggiungi
-              </button>
-            )}
-          </div>
         </div>
       </div>
 
