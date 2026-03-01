@@ -53,7 +53,7 @@ interface ClassroomChange {
 }
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<'absences' | 'makeup' | 'changes'>('absences')
+  const [activeTab, setActiveTab] = useState<'absences' | 'makeup' | 'changes' | 'orari'>('absences')
   const [lessons, setLessons] = useState<Lesson[]>([])
   const [absences, setAbsences] = useState<Absence[]>([])
   const [makeupLessons, setMakeupLessons] = useState<MakeupLesson[]>([])
@@ -208,6 +208,16 @@ export default function AdminDashboard() {
           >
             Cambi Aula
           </button>
+          <button
+            onClick={() => setActiveTab('orari')}
+            className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors ${
+              activeTab === 'orari'
+                ? 'border-purple-500 text-purple-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Orari
+          </button>
         </nav>
       </div>
 
@@ -239,6 +249,9 @@ export default function AdminDashboard() {
             onDelete={handleDeleteChange}
             onRefresh={loadData}
           />
+        )}
+        {activeTab === 'orari' && (
+          <OrariSyncTab onRefresh={loadData} />
         )}
       </div>
 
@@ -427,6 +440,75 @@ function ChangesTab({ changes, lessons, onAdd, onDelete, onRefresh }: any) {
           ))
         )}
       </div>
+    </div>
+  )
+}
+
+// Tab Orari - Sincronizzazione da GitHub
+function OrariSyncTab({ onRefresh }: { onRefresh?: () => void }) {
+  const [syncing, setSyncing] = useState(false)
+  const [result, setResult] = useState<{ total: { imported: number; errors: number }; results: Array<{ corso: string; imported: number; errors: number }> } | null>(null)
+
+  const handleSync = async () => {
+    setSyncing(true)
+    setResult(null)
+    try {
+      const res = await fetch('/api/import/sync-github', {
+        method: 'POST',
+        credentials: 'include',
+      })
+      const data = await res.json()
+      if (res.ok) {
+        setResult(data)
+        onRefresh?.()
+      } else {
+        alert(data.error || 'Errore durante la sincronizzazione')
+      }
+    } catch (error) {
+      console.error('Sync error:', error)
+      alert('Errore di connessione')
+    } finally {
+      setSyncing(false)
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-bold text-gray-900">Orari da LABA_Orari</h2>
+      </div>
+      <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
+        <p className="text-gray-600 mb-4">
+          Sincronizza automaticamente gli orari dal repository GitHub (LABA_Orari). 
+          I dati vengono scaricati da GitHub Pages e importati nel database, sostituendo le lezioni esistenti per ogni corso/anno.
+        </p>
+        <button
+          onClick={handleSync}
+          disabled={syncing}
+          className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+        >
+          {syncing ? 'Sincronizzazione in corso...' : 'Sincronizza da GitHub'}
+        </button>
+      </div>
+      {result && (
+        <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
+          <h3 className="font-semibold text-gray-900 mb-2">Risultato</h3>
+          <p className="text-sm text-gray-600 mb-2">
+            Importate: <strong>{result.total.imported}</strong> lezioni
+            {result.total.errors > 0 && (
+              <span className="text-red-600 ml-2">Errori: {result.total.errors}</span>
+            )}
+          </p>
+          <div className="max-h-48 overflow-y-auto text-sm">
+            {result.results.map((r, i) => (
+              <div key={i} className="flex justify-between py-1">
+                <span>{r.corso}</span>
+                <span>{r.imported} importate</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
