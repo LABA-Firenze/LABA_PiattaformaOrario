@@ -79,15 +79,18 @@ export default function Header({ selectedLocation, onLocationChange }: HeaderPro
       <header className="text-white shadow-lg sticky top-0 z-[100]" style={{ backgroundColor: '#033157' }}>
         <div className="container mx-auto px-2 sm:px-4">
           <div className="flex items-center justify-between h-14 sm:h-16 gap-2">
-            {/* Logo a sinistra */}
-            <div className="relative flex items-center flex-shrink-0 animate-fade-in h-8 sm:h-10 w-24 sm:w-28">
+            {/* Logo a sinistra - cliccabile per tornare alla home */}
+            <Link
+              href="/"
+              className="relative flex items-center flex-shrink-0 animate-fade-in h-8 sm:h-10 w-24 sm:w-28 hover:opacity-90 transition-opacity"
+            >
               <Image
                 src="/logoSito.svg"
-                alt="LABA"
+                alt="LABA - Home"
                 fill
                 className="object-contain object-left brightness-0 invert transition-transform duration-300 hover:scale-110"
               />
-            </div>
+            </Link>
             
             {/* Selettore Sede al centro - Mobile: dropdown, Desktop: bottoni */}
             <div className="hidden sm:flex items-center gap-2 flex-1 justify-center">
