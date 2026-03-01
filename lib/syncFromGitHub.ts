@@ -58,16 +58,28 @@ export interface DbLesson {
   semester: number  // 1 = set-gen, 2 = feb-giu
 }
 
+/** Estrae giorno settimana (0-6) dalla data ISO - usa solo YYYY-MM-DD, mai parsing con timezone */
 function getDayOfWeek(isoDateString: string): number {
-  const date = new Date(isoDateString)
-  return date.getDay()
+  const match = isoDateString.match(/^(\d{4})-(\d{2})-(\d{2})/)
+  if (match) {
+    const y = parseInt(match[1], 10)
+    const m = parseInt(match[2], 10) - 1
+    const d = parseInt(match[3], 10)
+    return new Date(y, m, d).getDay()
+  }
+  return 0
 }
 
+/** Estrae HH:mm dalla stringa ISO - usa solo il testo, mai conversione timezone (il JSON ha già l'ora Italia) */
 function extractTime(isoDateString: string): string {
-  const date = new Date(isoDateString)
-  const hours = date.getHours().toString().padStart(2, '0')
-  const minutes = date.getMinutes().toString().padStart(2, '0')
-  return `${hours}:${minutes}`
+  if (!isoDateString || typeof isoDateString !== 'string') return '09:00'
+  const tPart = isoDateString.split('T')[1]
+  if (tPart && tPart.length >= 5) {
+    return tPart.slice(0, 5) // HH:mm dal literal, nessuna conversione
+  }
+  const match = isoDateString.match(/T(\d{2}):(\d{2})/)
+  if (match) return `${match[1]}:${match[2]}`
+  return '09:00'
 }
 
 function normalizeClassroom(aula: string): string {
