@@ -3,6 +3,7 @@
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
 import { getCourseColor, getCourseCode } from '@/lib/courseColors'
+import { formatProfessorLines } from '@/lib/formatting'
 
 interface Lesson {
   id: string
@@ -148,9 +149,13 @@ export default function ListView({
 
               {/* Dettagli */}
               <div className="space-y-1.5 sm:space-y-2">
-                <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+                <div className="flex flex-wrap items-start gap-2 text-xs sm:text-sm">
                   <span className="font-semibold text-gray-600">Professore:</span>
-                  <span className="text-gray-700">{lesson.professor}</span>
+                  <div className="text-gray-700 leading-tight">
+                    {formatProfessorLines(lesson.professor).map((line, i) => (
+                      <div key={i}>{line}</div>
+                    ))}
+                  </div>
                 </div>
                 {lesson.notes && (
                   <div className="mt-2 pt-2 border-t border-gray-200">

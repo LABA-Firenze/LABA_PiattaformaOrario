@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
+import { formatProfessorLines } from '@/lib/formatting'
 
 interface Lesson {
   id: string
@@ -129,9 +130,13 @@ export default function SearchOverlay({ isOpen, onClose, onSelectLesson, lessons
                             <span className="font-medium whitespace-nowrap">Aula:</span>
                             <span>{lesson.classroom}</span>
                           </div>
-                          <div className="flex flex-wrap items-center gap-1 sm:gap-2">
+                          <div className="flex flex-wrap items-start gap-1 sm:gap-2">
                             <span className="font-medium whitespace-nowrap">Professore:</span>
-                            <span>{lesson.professor}</span>
+                            <span className="leading-tight">
+                              {formatProfessorLines(lesson.professor).map((line, i) => (
+                                <span key={i} className="block">{line}</span>
+                              ))}
+                            </span>
                           </div>
                           {lesson.course && (
                             <div className="flex flex-wrap items-center gap-1 sm:gap-2">

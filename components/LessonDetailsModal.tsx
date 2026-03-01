@@ -3,6 +3,7 @@
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
 import { getCourseColor } from '@/lib/courseColors'
+import { formatProfessorLines } from '@/lib/formatting'
 
 interface Lesson {
   id: string
@@ -134,8 +135,10 @@ export default function LessonDetailsModal({
               <div className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-0.5">
                 Professore
               </div>
-              <div className="text-base font-semibold text-gray-900">
-                {lesson.professor}
+              <div className="text-base font-semibold text-gray-900 leading-tight">
+                {formatProfessorLines(lesson.professor).map((line, i) => (
+                  <div key={i}>{line}</div>
+                ))}
               </div>
             </div>
           </div>

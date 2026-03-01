@@ -14,6 +14,7 @@ import { generateTimeSlots, timeToMinutes, getLessonSlots } from '@/lib/timeSlot
 import { Location } from '@/lib/locations'
 import { usePathname } from 'next/navigation'
 import { getCourseColor, getCourseCode } from '@/lib/courseColors'
+import { formatProfessorLines } from '@/lib/formatting'
 
 interface Lesson {
   id: string
@@ -480,8 +481,10 @@ function EventCard({ lesson, onEdit, onView }: { lesson: Lesson, onEdit?: () => 
         </span>
       </div>
       
-      <div className="mt-auto text-xs opacity-80 truncate" style={{ color: courseColor.textHex }}>
-        Prof. {lesson.professor}
+      <div className="mt-auto text-xs opacity-80 truncate leading-tight" style={{ color: courseColor.textHex }}>
+        {formatProfessorLines(lesson.professor).map((line, i) => (
+          <div key={i}>{line}</div>
+        ))}
       </div>
     </div>
   )

@@ -1,5 +1,7 @@
 'use client'
 
+import { formatProfessorLines } from '@/lib/formatting'
+
 interface Lesson {
   id: string
   title: string
@@ -32,7 +34,11 @@ export default function LessonCard({ lesson, compact = false, onEdit, onDelete }
           {lesson.startTime} - {lesson.endTime}
         </div>
         <div className="text-sm font-bold text-gray-800 truncate">{lesson.title}</div>
-        <div className="text-xs text-gray-600 truncate">{lesson.professor}</div>
+        <div className="text-xs text-gray-600 line-clamp-2">
+          {formatProfessorLines(lesson.professor).map((line, i) => (
+            <div key={i}>{line}</div>
+          ))}
+        </div>
         <div className="text-xs text-gray-500 truncate">{lesson.classroom}</div>
         {lesson.group && (
           <div className="text-xs text-gray-500">Gruppo: {lesson.group}</div>
@@ -57,9 +63,13 @@ export default function LessonCard({ lesson, compact = false, onEdit, onDelete }
           </div>
           <h3 className="text-lg font-bold text-gray-800 mb-1">{lesson.title}</h3>
           <div className="space-y-1 text-sm text-gray-600">
-            <div className="flex items-center gap-2">
-              <span className="font-semibold">Professore:</span>
-              <span>{lesson.professor}</span>
+            <div className="flex items-start gap-2">
+              <span className="font-semibold flex-shrink-0">Professore:</span>
+              <div className="leading-tight">
+                {formatProfessorLines(lesson.professor).map((line, i) => (
+                  <div key={i}>{line}</div>
+                ))}
+              </div>
             </div>
             <div className="flex items-center gap-2">
               <span className="font-semibold">Aula:</span>
