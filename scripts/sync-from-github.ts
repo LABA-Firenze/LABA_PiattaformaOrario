@@ -19,11 +19,14 @@ if (!supabaseUrl || !supabaseKey) {
   process.exit(1)
 }
 
+const url = supabaseUrl as string
+const key = supabaseKey as string
+
 async function main() {
   const { createClient } = await import('@supabase/supabase-js')
   const { syncFromGitHub } = await import('../lib/syncFromGitHub')
 
-  const supabase = createClient(supabaseUrl, supabaseKey)
+  const supabase = createClient(url, key)
   console.log('🚀 Avvio sync da GitHub Pages...\n')
 
   const results = await syncFromGitHub(supabase)
