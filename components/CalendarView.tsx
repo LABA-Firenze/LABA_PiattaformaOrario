@@ -13,10 +13,7 @@ import { getBaseClassrooms } from '@/lib/classrooms'
 import { generateTimeSlots, timeToMinutes, getLessonSlots } from '@/lib/timeSlots'
 import { Location } from '@/lib/locations'
 import { usePathname } from 'next/navigation'
-import { generateICS } from '@/lib/ics'
 import { getCourseColor, getCourseCode } from '@/lib/courseColors'
-import { getCoursesForLocation } from '@/lib/locations'
-import { ALL_COURSES } from '@/lib/courses'
 
 interface Lesson {
   id: string
@@ -53,9 +50,6 @@ export default function CalendarView({ initialLocation }: CalendarViewProps = {}
   const [showSearch, setShowSearch] = useState(false)
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null)
   const [showLessonDetails, setShowLessonDetails] = useState(false)
-  const [showExportModal, setShowExportModal] = useState(false)
-  const [exportCourse, setExportCourse] = useState<string>('')
-  const [allLessons, setAllLessons] = useState<Lesson[]>([])
   const [viewMode, setViewMode] = useState<'calendar' | 'list'>('calendar')
 
   const pathname = usePathname()
@@ -100,25 +94,6 @@ export default function CalendarView({ initialLocation }: CalendarViewProps = {}
     }
   }
 
-  const loadAllLessons = async () => {
-    try {
-      const res = await fetch('/api/lessons')
-      const data = await res.json()
-      const locationClassrooms = getBaseClassrooms(selectedLocation)
-      const filteredLessons = data.filter((lesson: Lesson) => {
-        const c = lesson.classroom
-        if (selectedLocation === 'badia-ripoli') {
-          if (c === 'Magna 1' || c === 'Magna 2') return locationClassrooms.includes('Aula Magna')
-          if (c === 'Conference 1' || c === 'Conference 2') return locationClassrooms.includes('Conference')
-        }
-        return locationClassrooms.includes(c)
-      })
-      setAllLessons(filteredLessons)
-    } catch (e) {
-      console.error("Failed to load all lessons", e)
-    }
-  }
-  
   // Gestione URL e Location (sync state con pathname)
   useEffect(() => {
     if (pathname) {
@@ -136,43 +111,14 @@ export default function CalendarView({ initialLocation }: CalendarViewProps = {}
   useEffect(() => {
     checkAuth()
     loadLessons()
-    loadAllLessons()
-    const handleExportEvent = () => setShowExportModal(true)
-    window.addEventListener('export-calendar', handleExportEvent)
-    return () => window.removeEventListener('export-calendar', handleExportEvent)
     // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount
   }, [])
 
   // Ricarica lezioni quando cambiano filtri
   useEffect(() => {
     loadLessons()
-    loadAllLessons()
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- load when filters change; loadLessons/loadAllLessons are stable
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- load when filters change; loadLessons is stable
   }, [filterCourse, filterYear, selectedLocation])
-
-  const handleExportToCalendar = () => {
-    if (!exportCourse) return
-    
-    // Filtra le lezioni per il corso selezionato
-    const filteredLessons = allLessons.filter(lesson => lesson.course === exportCourse)
-    
-    const courseCode = getCourseCode(exportCourse)
-    const fileName = `orario_laba_${courseCode.toLowerCase()}.ics`
-    
-    const icsContent = generateICS(filteredLessons)
-    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' })
-    const url = window.URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.setAttribute('download', fileName)
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    window.URL.revokeObjectURL(url)
-    
-    setShowExportModal(false)
-    setExportCourse('')
-  }
 
   // --- LOGICA DI CALCOLO DELLA GRIGLIA ---
   
@@ -497,49 +443,6 @@ export default function CalendarView({ initialLocation }: CalendarViewProps = {}
         onClose={() => { setShowLessonDetails(false); setSelectedLesson(null) }}
         onEdit={isAuthenticated ? (lesson) => { setEditingLesson(lesson); setShowForm(true) } : undefined}
       />
-
-      {/* Modal Esportazione Calendario */}
-      {showExportModal && (
-        <>
-          <div 
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[90] animate-fade-in"
-            onClick={() => { setShowExportModal(false); setExportCourse('') }}
-          />
-          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[100] bg-white rounded-lg shadow-xl border border-gray-200 min-w-[320px] max-w-md animate-scale-in">
-            <div className="p-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">Esporta calendario</h3>
-              <p className="text-sm text-gray-600 mb-4">Seleziona il corso da esportare:</p>
-              <select
-                value={exportCourse}
-                onChange={(e) => setExportCourse(e.target.value)}
-                className="w-full px-3 py-2 rounded-md text-sm border border-gray-300 bg-white text-gray-700 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-4"
-              >
-                <option value="">Seleziona un corso</option>
-                {getCoursesForLocation(selectedLocation).map((course) => (
-                  <option key={course} value={course}>
-                    {course === 'Graphic Design & Multimedia' ? 'Graphic Design' : course}
-                  </option>
-                ))}
-              </select>
-              <div className="flex gap-3 justify-end">
-                <button
-                  onClick={() => { setShowExportModal(false); setExportCourse('') }}
-                  className="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors"
-                >
-                  Annulla
-                </button>
-                <button
-                  onClick={handleExportToCalendar}
-                  disabled={!exportCourse}
-                  className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-                >
-                  Esporta
-                </button>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
     </div>
   )
 }
