@@ -55,6 +55,7 @@ export interface DbLesson {
   year: number | null
   group_name: string | null
   notes: string | null
+  semester: number  // 1 = set-gen, 2 = feb-giu
 }
 
 function getDayOfWeek(isoDateString: string): number {
@@ -79,7 +80,7 @@ function normalizeClassroom(aula: string): string {
 }
 
 
-export function convertJsonToDb(json: JsonLesson, platformCourse: string): DbLesson {
+export function convertJsonToDb(json: JsonLesson, platformCourse: string, semester: number): DbLesson {
   return {
     title: json.corso,
     start_time: extractTime(json.start),
@@ -91,15 +92,15 @@ export function convertJsonToDb(json: JsonLesson, platformCourse: string): DbLes
     year: json.anno,
     group_name: json.gruppo,
     notes: json.note,
+    semester,
   }
 }
 
-/** Deduplica lezioni uguali (stesso slot settimanale, stesso corso/anno/gruppo) - tiene la prima per evitare duplicati in aule diverse */
+/** Deduplica lezioni uguali (stesso slot, stesso semestre) - tiene la prima */
 function deduplicateLessons(lessons: DbLesson[]): DbLesson[] {
   const seen = new Set<string>()
   return lessons.filter((l) => {
-    // Chiave SENZA classroom: stessa lezione nello stesso slot = una sola (evita "Informatica" in Visual HUB + Movie Hall + Multimedia LAB)
-    const key = `${l.course}-${l.year}-${l.title}-${l.day_of_week}-${l.start_time}-${l.end_time}-${l.professor}-${l.group_name ?? ''}`
+    const key = `${l.semester}-${l.course}-${l.year}-${l.title}-${l.day_of_week}-${l.start_time}-${l.end_time}-${l.professor}-${l.group_name ?? ''}`
     if (seen.has(key)) return false
     seen.add(key)
     return true
@@ -139,7 +140,6 @@ export async function syncFromGitHub(supabase: any): Promise<SyncResult[]> {
 
     for (const anno of years) {
       const allLessons: DbLesson[] = []
-      let totalFetched = 0
 
       for (const semester of [1, 2]) {
         const json = await fetchJsonFromGitHub(corso, anno, semester)
@@ -147,8 +147,7 @@ export async function syncFromGitHub(supabase: any): Promise<SyncResult[]> {
 
         const converted = json
           .filter((j) => j.anno === anno)
-          .map((j) => convertJsonToDb(j, platformCourse))
-        totalFetched += converted.length
+          .map((j) => convertJsonToDb(j, platformCourse, semester))
         allLessons.push(...converted)
       }
 

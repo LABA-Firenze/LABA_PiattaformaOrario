@@ -17,6 +17,8 @@ export interface Lesson {
 export interface LessonFilters {
   course?: string
   year?: number
+  /** Data visualizzata: filtra per semestre (feb-giu=2, set-gen=1) */
+  date?: string // ISO date YYYY-MM-DD
 }
 
 // Convert database row to Lesson interface
@@ -52,18 +54,28 @@ function lessonToDbRow(lesson: Omit<Lesson, 'id'> | Partial<Lesson>): any {
   return row
 }
 
+/** Calcola semestre da data: feb-giu=2, set-gen=1 */
+export function getSemesterFromDate(dateStr: string): number {
+  const d = new Date(dateStr)
+  const m = d.getMonth() + 1 // 1-12
+  return m >= 2 && m <= 6 ? 2 : 1
+}
+
 export async function getLessons(filters?: LessonFilters): Promise<Lesson[]> {
   try {
     let query = supabase
       .from('lessons')
       .select('*')
 
-    // Applica filtri se presenti
     if (filters?.course) {
       query = query.eq('course', filters.course)
     }
     if (filters?.year !== undefined) {
       query = query.eq('year', filters.year)
+    }
+    if (filters?.date) {
+      const sem = getSemesterFromDate(filters.date)
+      query = query.eq('semester', sem)
     }
 
     const { data, error } = await query

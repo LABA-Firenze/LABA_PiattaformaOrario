@@ -77,6 +77,7 @@ export default function CalendarView({ initialLocation }: CalendarViewProps = {}
     const params = new URLSearchParams()
     if (filterCourse) params.append('course', filterCourse)
     if (filterYear !== null) params.append('year', filterYear.toString())
+    params.append('date', format(currentDate, 'yyyy-MM-dd'))
     try {
       const res = await fetch(`/api/lessons?${params.toString()}`)
       const data = await res.json()
@@ -111,11 +112,11 @@ export default function CalendarView({ initialLocation }: CalendarViewProps = {}
     // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount
   }, [])
 
-  // Ricarica lezioni quando cambiano filtri
+  // Ricarica lezioni quando cambiano filtri o data (per semestre corretto)
   useEffect(() => {
     loadLessons()
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- load when filters change; loadLessons is stable
-  }, [filterCourse, filterYear, selectedLocation])
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- load when filters/date change
+  }, [filterCourse, filterYear, selectedLocation, currentDate])
 
   // --- LOGICA DI CALCOLO DELLA GRIGLIA ---
   
