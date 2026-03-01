@@ -77,9 +77,9 @@ export default function Header({ selectedLocation, onLocationChange }: HeaderPro
 
   return (
     <>
-      <header className="text-white shadow-lg sticky top-0 z-[100]" style={{ backgroundColor: '#033157' }}>
-        <div className="container mx-auto px-2 sm:px-4">
-          <div className="flex items-center justify-between h-14 sm:h-16 gap-2">
+      <header className="text-white shadow-lg sticky top-0 z-[100] overflow-hidden" style={{ backgroundColor: '#033157' }}>
+        <div className="container mx-auto px-2 sm:px-4 max-w-full">
+          <div className="flex items-center justify-between h-14 sm:h-16 gap-1 sm:gap-2 min-w-0">
             {/* Logo a sinistra - cliccabile per tornare alla home */}
             <Link
               href="/"
@@ -118,10 +118,10 @@ export default function Header({ selectedLocation, onLocationChange }: HeaderPro
                     Via de&apos; Vecchietti
                   </button>
                 </div>
-                <div className="sm:hidden flex items-center gap-1.5 flex-1 min-w-0 justify-center">
+                <div className="sm:hidden flex items-center gap-1 flex-1 min-w-0 justify-center overflow-hidden">
                   <button
                     onClick={() => handleLocationChange('badia-ripoli')}
-                    className={`px-2 py-1 rounded-md font-medium text-[10px] transition-all truncate max-w-[45%] ${
+                    className={`flex-1 min-w-0 px-2 py-1 rounded-md font-medium text-[10px] transition-all truncate ${
                       currentLocation === 'badia-ripoli'
                         ? 'bg-white text-[#033157] shadow-md'
                         : 'bg-white/20 text-white hover:bg-white/30'
@@ -132,7 +132,7 @@ export default function Header({ selectedLocation, onLocationChange }: HeaderPro
                   </button>
                   <button
                     onClick={() => handleLocationChange('via-vecchietti')}
-                    className={`px-2 py-1 rounded-md font-medium text-[10px] transition-all truncate max-w-[45%] ${
+                    className={`flex-1 min-w-0 px-2 py-1 rounded-md font-medium text-[10px] transition-all truncate ${
                       currentLocation === 'via-vecchietti'
                         ? 'bg-white text-[#033157] shadow-md'
                         : 'bg-white/20 text-white hover:bg-white/30'

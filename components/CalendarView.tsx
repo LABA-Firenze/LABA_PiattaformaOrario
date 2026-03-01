@@ -192,14 +192,14 @@ export default function CalendarView({ initialLocation }: CalendarViewProps = {}
         <div className="flex gap-3 items-stretch">
           <button
             onClick={() => setShowSearch(true)}
-            className="flex-1 min-w-0 flex items-center justify-center gap-2 px-4 py-3 sm:py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 text-sm sm:text-base font-medium transition-colors border border-slate-200 active:scale-[0.98]"
+            className="flex-1 sm:flex-initial sm:min-w-[160px] sm:max-w-[220px] min-w-0 flex items-center justify-center gap-2 px-4 py-3 sm:py-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 text-sm font-medium transition-colors border border-slate-200 active:scale-[0.98]"
           >
             <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             <span className="truncate">Cerca lezione</span>
           </button>
-          <div className="w-40 sm:w-auto sm:min-w-[200px] flex-shrink-0">
+          <div className="w-36 sm:w-auto sm:min-w-[180px] flex-shrink-0">
             <ViewSelector view={viewMode} onViewChange={setViewMode} />
           </div>
         </div>
@@ -281,7 +281,7 @@ export default function CalendarView({ initialLocation }: CalendarViewProps = {}
       </div>
 
       {/* Contenitore Calendario/Lista */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col flex-1 overflow-hidden" style={{ maxWidth: viewMode === 'calendar' ? containerMaxWidth : '100%', margin: (viewMode === 'calendar' && selectedLocation === 'via-vecchietti') ? '0 auto' : '0' }}>
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col flex-1 min-w-0 overflow-hidden" style={{ maxWidth: viewMode === 'calendar' ? containerMaxWidth : '100%', margin: (viewMode === 'calendar' && selectedLocation === 'via-vecchietti') ? '0 auto' : '0' }}>
         {/* Header Giorno */}
         <div className="px-4 py-3 text-white flex items-center justify-between flex-shrink-0" style={{ backgroundColor: '#033157' }}>
           <div className="flex items-center gap-2 sm:gap-3">
@@ -303,7 +303,7 @@ export default function CalendarView({ initialLocation }: CalendarViewProps = {}
         {viewMode === 'calendar' ? (
           <>
             {/* Tabella Calendario - Scrollabile */}
-            <div className="flex-1 overflow-x-auto overflow-y-auto bg-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] touch-pan-x" style={{ height: 'calc(100vh - 240px)', WebkitOverflowScrolling: 'touch' }}>
+            <div className="flex-1 min-w-0 overflow-x-auto overflow-y-auto bg-white touch-pan-x overscroll-contain hide-scrollbar" style={{ height: 'calc(100vh - 240px)', WebkitOverflowScrolling: 'touch' }}>
           <table className="border-collapse" style={{ width: `${tableWidth}px`, tableLayout: 'fixed', minWidth: `${tableWidth}px`, maxWidth: `${tableWidth}px` }}>
             {/* Intestazione Aule - Sticky Top */}
             <thead className="sticky top-0 z-20 bg-white shadow-sm">

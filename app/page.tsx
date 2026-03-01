@@ -26,7 +26,7 @@ export default function Home() {
           <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4 text-center">
             Scegli la sede
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-3xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-4xl mx-auto">
             <button
               onClick={() => router.push('/badia-ripoli')}
               className="group relative overflow-hidden rounded-2xl bg-white p-6 sm:p-8 text-left shadow-lg shadow-slate-200/60 border border-slate-100 hover:shadow-xl hover:shadow-slate-200/80 hover:border-slate-200 transition-all duration-300 hover:-translate-y-1"
@@ -42,11 +42,10 @@ export default function Home() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                     </svg>
                   </div>
-                  <div>
-                    <span className="text-lg sm:text-xl font-semibold text-slate-900 block">
+                  <div className="min-w-0">
+                    <span className="text-lg sm:text-xl font-semibold text-slate-900 whitespace-nowrap">
                       Piazza di Badia a Ripoli
                     </span>
-                    <span className="text-sm text-slate-500">Vedi orario lezioni</span>
                   </div>
                 </div>
                 <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-[#033157] group-hover:text-white transition-colors duration-300">
@@ -72,11 +71,10 @@ export default function Home() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                     </svg>
                   </div>
-                  <div>
-                    <span className="text-lg sm:text-xl font-semibold text-slate-900 block">
+                  <div className="min-w-0">
+                    <span className="text-lg sm:text-xl font-semibold text-slate-900 whitespace-nowrap">
                       Via de&apos; Vecchietti
                     </span>
-                    <span className="text-sm text-slate-500">Vedi orario lezioni</span>
                   </div>
                 </div>
                 <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-[#033157] group-hover:text-white transition-colors duration-300">
