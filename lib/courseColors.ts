@@ -183,6 +183,13 @@ const courseColorMap: Record<string, CourseColor> = {
   },
 }
 
+/** Solo Fashion Design: colore diverso per ogni anno */
+const fashionDesignByYear: Record<number, CourseColor> = {
+  1: { bg: 'bg-fuchsia-50', text: 'text-fuchsia-700', border: 'border-fuchsia-300', borderColor: '#f0abfc', bgHex: '#fdf4ff', textHex: '#a21caf' },
+  2: { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-300', borderColor: '#fda4af', bgHex: '#fff1f2', textHex: '#be123c' },
+  3: { bg: 'bg-violet-50', text: 'text-violet-700', border: 'border-violet-300', borderColor: '#a78bfa', bgHex: '#f5f3ff', textHex: '#5b21b6' },
+}
+
 // Colore di default per lezioni senza corso specifico
 const defaultColor: CourseColor = {
   bg: 'bg-gray-50',
@@ -219,14 +226,14 @@ export function getCourseColor(course?: string, year?: number): CourseColor {
   if (!course) {
     return defaultColor
   }
-  
+  // Solo Fashion Design: colore diverso per anno
+  if (course === 'Fashion Design' && year && year >= 1 && year <= 3) {
+    return fashionDesignByYear[year]
+  }
   const baseColor = courseColorMap[course] || defaultColor
-  
-  // Se non c'è anno specificato, restituisci il colore base
   if (!year || year < 1 || year > 3) {
     return baseColor
   }
-  
   // Applica le tonalità in base all'anno - variazioni sottili dello stesso colore
   const adjustedBorderColor = adjustColorBrightness(baseColor.borderColor, year)
   const adjustedBgHex = adjustColorBrightness(baseColor.bgHex, year)
@@ -250,7 +257,7 @@ export function getCourseCode(course?: string): string {
     'Graphic Design & Multimedia': 'GD',
     'Fashion Design': 'FD',
     'Interior Design': 'INT',
-    'Regia e Videomaking': 'RV',
+    'Regia e Videomaking': 'REG',
     'Fotografia': 'FOT',
     'Pittura': 'PIT',
     'Cinema e Audiovisivi': 'CIN',

@@ -551,9 +551,9 @@ function EventCard({ lesson, onEdit, onView }: { lesson: Lesson, onEdit?: () => 
         {lesson.group && (
           <span
             className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold whitespace-nowrap"
-            style={{ backgroundColor: courseColor.borderColor, color: courseColor.textHex }}
+            style={{ backgroundColor: courseColor.borderColor + '50', color: courseColor.textHex }}
           >
-            Gruppo {lesson.group}
+            {lesson.group}
           </span>
         )}
       </div>

@@ -164,9 +164,9 @@ export default function SearchOverlay({ isOpen, onClose, onSelectLesson, lessons
                             {lesson.group && (
                               <span
                                 className="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap"
-                                style={{ backgroundColor: courseColor.borderColor, color: courseColor.textHex }}
+                                style={{ backgroundColor: courseColor.borderColor + '50', color: courseColor.textHex }}
                               >
-                                Gruppo {lesson.group}
+                                {lesson.group}
                               </span>
                             )}
                             <span

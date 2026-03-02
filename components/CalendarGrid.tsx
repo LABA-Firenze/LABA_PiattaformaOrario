@@ -202,8 +202,8 @@ function LessonEventCard({ lesson, startSlot, slotCount, onEdit, onView }: Lesso
                             Prof. {lesson.professor}
                         </div>
                         {lesson.group && (
-                          <div className={`text-[10px] font-semibold ${courseColor.text} opacity-80 truncate mt-0.5`}>
-                            Gruppo {lesson.group}
+                          <div className="inline-block px-1.5 py-0.5 rounded-full text-[9px] font-semibold mt-0.5" style={{ backgroundColor: courseColor.borderColor + '50', color: courseColor.textHex }}>
+                            {lesson.group}
                           </div>
                         )}
                     </>

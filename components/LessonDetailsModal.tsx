@@ -164,7 +164,7 @@ export default function LessonDetailsModal({
             {allCourses.length > 0 && (
               <div>
                 <div className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1.5">
-                  Corso{allCourses.length > 1 ? 'i' : ''}
+                  {allCourses.length > 1 ? 'Corsi' : 'Corso'}
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {allCourses.map((c, i) => {
@@ -182,9 +182,9 @@ export default function LessonDetailsModal({
                   {lesson.group && (
                     <span
                       className="inline-flex px-3 py-1.5 rounded-full text-sm font-semibold"
-                      style={{ backgroundColor: courseColor.borderColor, color: courseColor.textHex }}
+                      style={{ backgroundColor: courseColor.borderColor + '50', color: courseColor.textHex }}
                     >
-                      Gruppo {lesson.group}
+                      {lesson.group}
                     </span>
                   )}
                 </div>
@@ -195,9 +195,9 @@ export default function LessonDetailsModal({
                 <div className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1.5">Gruppo</div>
                 <span
                   className="inline-flex px-3 py-1.5 rounded-full text-sm font-semibold"
-                  style={{ backgroundColor: courseColor.borderColor, color: courseColor.textHex }}
+                  style={{ backgroundColor: courseColor.borderColor + '50', color: courseColor.textHex }}
                 >
-                  Gruppo {lesson.group}
+                  {lesson.group}
                 </span>
               </div>
             )}

@@ -107,9 +107,9 @@ export default function ListView({
                   {lesson.group && (
                     <span
                       className="inline-flex px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-semibold whitespace-nowrap"
-                      style={{ backgroundColor: courseColor.borderColor, color: courseColor.textHex }}
+                      style={{ backgroundColor: courseColor.borderColor + '50', color: courseColor.textHex }}
                     >
-                      Gruppo {lesson.group}
+                      {lesson.group}
                     </span>
                   )}
                 </div>
