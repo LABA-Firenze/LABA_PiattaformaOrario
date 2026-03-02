@@ -1,4 +1,7 @@
-import { supabase } from './supabase'
+import { supabase, supabaseAdmin } from './supabase'
+
+// Usa admin client per scritture (bypassa RLS) - la policy blocca INSERT/UPDATE/DELETE per anon
+const db = supabaseAdmin ?? supabase
 
 export interface Lesson {
   id: string
@@ -63,7 +66,7 @@ export function getSemesterFromDate(dateStr: string): number {
 
 export async function getLessons(filters?: LessonFilters): Promise<Lesson[]> {
   try {
-    let query = supabase
+    let query = db
       .from('lessons')
       .select('*')
 
@@ -97,7 +100,7 @@ export async function getLessons(filters?: LessonFilters): Promise<Lesson[]> {
 export async function addLesson(lesson: Omit<Lesson, 'id'>): Promise<Lesson> {
   try {
     const row = lessonToDbRow(lesson)
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('lessons')
       .insert(row)
       .select()
@@ -122,7 +125,7 @@ export async function updateLesson(
 ): Promise<Lesson | null> {
   try {
     // Prima ottieni la lezione originale per trovare le caratteristiche da matchare
-    const { data: originalLesson } = await supabase
+    const { data: originalLesson } = await db
       .from('lessons')
       .select('*')
       .eq('id', id)
@@ -137,7 +140,7 @@ export async function updateLesson(
     if (updateScope === 'all_future') {
       // Trova tutte le lezioni con le stesse caratteristiche della lezione originale
       // e aggiornale tutte
-      let query = supabase
+      let query = db
         .from('lessons')
         .update(row)
         .eq('day_of_week', originalLesson.day_of_week)
@@ -177,7 +180,7 @@ export async function updateLesson(
       return updated ? dbRowToLesson(updated) : null
     } else {
       // Aggiorna solo questa lezione
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from('lessons')
         .update(row)
         .eq('id', id)
@@ -202,7 +205,7 @@ export async function updateLesson(
 /** Ottiene i professori distinti dal DB (per dropdown) */
 export async function getDistinctProfessors(): Promise<string[]> {
   try {
-    const { data, error } = await supabase.from('lessons').select('professor')
+    const { data, error } = await db.from('lessons').select('professor')
     if (error) return []
     const set = new Set((data || []).map((r: any) => r.professor).filter(Boolean))
     return Array.from(set).sort()
@@ -214,7 +217,7 @@ export async function getDistinctProfessors(): Promise<string[]> {
 /** Ottiene le aule distinti dal DB (per dropdown, unione con lista canonica) */
 export async function getDistinctClassrooms(): Promise<string[]> {
   try {
-    const { data, error } = await supabase.from('lessons').select('classroom')
+    const { data, error } = await db.from('lessons').select('classroom')
     if (error) return []
     const set = new Set((data || []).map((r: any) => r.classroom).filter(Boolean))
     return Array.from(set).sort()
@@ -225,7 +228,7 @@ export async function getDistinctClassrooms(): Promise<string[]> {
 
 export async function deleteLesson(id: string): Promise<boolean> {
   try {
-    const { error } = await supabase.from('lessons').delete().eq('id', id)
+    const { error } = await db.from('lessons').delete().eq('id', id)
 
     if (error) {
       console.error('Error deleting lesson:', error)
