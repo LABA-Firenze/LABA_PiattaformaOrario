@@ -44,15 +44,14 @@ function getDatesInRange(dayOfWeek: number, startDate: Date, endDate: Date): Dat
 }
 
 // Formato ISO per GitHub (es. 2025-11-03T15:00:00+01:00)
+// Usa time string direttamente - evita conversione Date che sbaglia fuso (server UTC vs Italia)
 function toIsoDateTime(date: Date, time: string): string {
   const [h, m] = time.split(':').map(Number)
-  const d = new Date(date)
-  d.setHours(h, m, 0, 0)
-  const y = d.getFullYear()
-  const mo = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  const hr = String(d.getHours()).padStart(2, '0')
-  const min = String(d.getMinutes()).padStart(2, '0')
+  const hr = String(h).padStart(2, '0')
+  const min = String(m).padStart(2, '0')
+  const y = date.getFullYear()
+  const mo = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
   return `${y}-${mo}-${day}T${hr}:${min}:00+01:00`
 }
 
@@ -142,6 +141,8 @@ export async function exportToGitHub(
     }
   }
 
+  // Costruisce path -> content e risultati per ogni file
+  const filesToCommit: Array<{ path: string; content: string; corso: string; anno: number; sem: number; entries: number }> = []
   for (const [key, less] of Array.from(byFile.entries())) {
     const [corso, annoStr, semStr] = key.split('-')
     const anno = parseInt(annoStr, 10)
@@ -158,69 +159,179 @@ export async function exportToGitHub(
       jsonEntries.push(...dbLessonToJsonEntries(l, corsoStudio, sem, yearStart))
     }
     jsonEntries.sort((a, b) => a.start.localeCompare(b.start))
-
-    try {
-      const content = JSON.stringify(jsonEntries, null, 2)
-      const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${options.token}`,
-          Accept: 'application/vnd.github+json',
-          'X-GitHub-Api-Version': '2022-11-28',
-        },
-      })
-      let sha: string | undefined
-      if (res.ok) {
-        const existing = await res.json()
-        sha = existing.sha
-      }
-      const putRes = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${options.token}`,
-          Accept: 'application/vnd.github+json',
-          'X-GitHub-Api-Version': '2022-11-28',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: `Aggiornamento orari ${corso} ${anno}° sem ${sem} da piattaforma`,
-          content: Buffer.from(content, 'utf-8').toString('base64'),
-          sha,
-        }),
-      })
-      if (!putRes.ok) {
-        const err = await putRes.json()
-        results.push({
-          corso: `${corso} ${anno}°`,
-          anno,
-          semester: sem,
-          path,
-          entries: jsonEntries.length,
-          ok: false,
-          error: err.message || putRes.statusText,
-        })
-      } else {
-        results.push({
-          corso: `${corso} ${anno}°`,
-          anno,
-          semester: sem,
-          path,
-          entries: jsonEntries.length,
-          ok: true,
-        })
-      }
-    } catch (e: any) {
-      results.push({
-        corso: `${corso} ${anno}°`,
-        anno,
-        semester: sem,
-        path,
-        entries: jsonEntries.length,
-        ok: false,
-        error: e.message || 'Errore di rete',
-      })
-    }
+    filesToCommit.push({
+      path,
+      content: JSON.stringify(jsonEntries, null, 2),
+      corso: `${corso} ${anno}°`,
+      anno,
+      sem,
+      entries: jsonEntries.length,
+    })
   }
 
-  return results
+  if (filesToCommit.length === 0) return results
+
+  const headers = {
+    Authorization: `Bearer ${options.token}`,
+    Accept: 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+    'Content-Type': 'application/json',
+  }
+  const base = `https://api.github.com/repos/${repo}`
+
+  try {
+    // 1. Ottieni commit e tree SHA attuali
+    const refRes = await fetch(`${base}/git/refs/heads/main`, { headers })
+    if (!refRes.ok) {
+      const err = await refRes.json().catch(() => ({}))
+      return filesToCommit.map((f) => ({
+        corso: f.corso,
+        anno: f.anno,
+        semester: f.sem,
+        path: f.path,
+        entries: f.entries,
+        ok: false,
+        error: (err as { message?: string }).message || refRes.statusText,
+      }))
+    }
+    const refData = (await refRes.json()) as { object: { sha: string } }
+    const commitSha = refData.object.sha
+
+    const commitRes = await fetch(`${base}/git/commits/${commitSha}`, { headers })
+    if (!commitRes.ok) {
+      const err = await commitRes.json().catch(() => ({}))
+      return filesToCommit.map((f) => ({
+        corso: f.corso,
+        anno: f.anno,
+        semester: f.sem,
+        path: f.path,
+        entries: f.entries,
+        ok: false,
+        error: (err as { message?: string }).message || commitRes.statusText,
+      }))
+    }
+    const commitData = (await commitRes.json()) as { tree: { sha: string } }
+    const baseTreeSha = commitData.tree.sha
+
+    // 2. Crea blob per ogni file
+    const treeEntries: Array<{ path: string; mode: string; type: string; sha: string }> = []
+    for (const f of filesToCommit) {
+      const blobRes = await fetch(`${base}/git/blobs`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          content: Buffer.from(f.content, 'utf-8').toString('base64'),
+          encoding: 'base64',
+        }),
+      })
+      if (!blobRes.ok) {
+        const err = await blobRes.json().catch(() => ({}))
+        return filesToCommit.map((file) => ({
+          corso: file.corso,
+          anno: file.anno,
+          semester: file.sem,
+          path: file.path,
+          entries: file.entries,
+          ok: false,
+          error: (err as { message?: string }).message || blobRes.statusText,
+        }))
+      }
+      const blobData = (await blobRes.json()) as { sha: string }
+      treeEntries.push({
+        path: f.path,
+        mode: '100644',
+        type: 'blob',
+        sha: blobData.sha,
+      })
+    }
+
+    // 3. Crea tree unico con base_tree + nostri file
+    const treeRes = await fetch(`${base}/git/trees`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        base_tree: baseTreeSha,
+        tree: treeEntries,
+      }),
+    })
+    if (!treeRes.ok) {
+      const err = await treeRes.json().catch(() => ({}))
+      return filesToCommit.map((f) => ({
+        corso: f.corso,
+        anno: f.anno,
+        semester: f.sem,
+        path: f.path,
+        entries: f.entries,
+        ok: false,
+        error: (err as { message?: string }).message || treeRes.statusText,
+      }))
+    }
+    const treeData = (await treeRes.json()) as { sha: string }
+    const newTreeSha = treeData.sha
+
+    // 4. Crea commit unico
+    const newCommitRes = await fetch(`${base}/git/commits`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        message: `Aggiornamento orari da piattaforma (${filesToCommit.length} file)`,
+        tree: newTreeSha,
+        parents: [commitSha],
+      }),
+    })
+    if (!newCommitRes.ok) {
+      const err = await newCommitRes.json().catch(() => ({}))
+      return filesToCommit.map((f) => ({
+        corso: f.corso,
+        anno: f.anno,
+        semester: f.sem,
+        path: f.path,
+        entries: f.entries,
+        ok: false,
+        error: (err as { message?: string }).message || newCommitRes.statusText,
+      }))
+    }
+    const newCommitData = (await newCommitRes.json()) as { sha: string }
+    const newCommitSha = newCommitData.sha
+
+    // 5. Aggiorna ref main
+    const updateRefRes = await fetch(`${base}/git/refs/heads/main`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify({ sha: newCommitSha }),
+    })
+    if (!updateRefRes.ok) {
+      const err = await updateRefRes.json().catch(() => ({}))
+      return filesToCommit.map((f) => ({
+        corso: f.corso,
+        anno: f.anno,
+        semester: f.sem,
+        path: f.path,
+        entries: f.entries,
+        ok: false,
+        error: (err as { message?: string }).message || updateRefRes.statusText,
+      }))
+    }
+
+    // Successo: un solo commit, un solo workflow
+    return filesToCommit.map((f) => ({
+      corso: f.corso,
+      anno: f.anno,
+      semester: f.sem,
+      path: f.path,
+      entries: f.entries,
+      ok: true,
+    }))
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : 'Errore di rete'
+    return filesToCommit.map((f) => ({
+      corso: f.corso,
+      anno: f.anno,
+      semester: f.sem,
+      path: f.path,
+      entries: f.entries,
+      ok: false,
+      error: msg,
+    }))
+  }
 }
