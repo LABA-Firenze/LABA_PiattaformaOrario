@@ -48,6 +48,60 @@ export interface JsonLesson {
   altriCorsi?: Array<[string, number]>
 }
 
+/** Formato "nuovi" orari: una entry con lezioni[] (data GG-MM-AAAA + ora) */
+interface NuovoLessonEntry {
+  corso: string
+  oidCorso?: string | null
+  oidCorsi?: string[] | null
+  anno: number
+  gruppo?: string | null
+  aula?: string | null
+  docente?: string | null
+  note?: string | null
+  corsoStudio?: string | null
+  lezioni: { data: string; oraInizio: string; oraFine: string }[]
+}
+
+function isNuovoFormat(data: unknown): data is NuovoLessonEntry[] {
+  return Array.isArray(data) && data.length > 0 && data[0] != null && 'lezioni' in data[0]
+}
+
+function toISO8601(data: string, timeHHMM: string): string | null {
+  const parts = data.split('-')
+  if (parts.length !== 3) return null
+  const gg = parseInt(parts[0], 10)
+  const mm = parseInt(parts[1], 10)
+  const aa = parseInt(parts[2], 10)
+  if (Number.isNaN(gg) || Number.isNaN(mm) || Number.isNaN(aa)) return null
+  const timePart = timeHHMM.includes(':') ? timeHHMM : `${timeHHMM.slice(0, 2)}:${timeHHMM.slice(2)}`
+  return `${aa}-${String(mm).padStart(2, '0')}-${String(gg).padStart(2, '0')}T${timePart}:00+01:00`
+}
+
+function expandNuovoToJsonLessons(entries: NuovoLessonEntry[], corsoStudio: string): JsonLesson[] {
+  const out: JsonLesson[] = []
+  for (const entry of entries) {
+    for (const slot of entry.lezioni) {
+      const startISO = toISO8601(slot.data, slot.oraInizio)
+      const endISO = toISO8601(slot.data, slot.oraFine)
+      if (!startISO || !endISO) continue
+      out.push({
+        corso: entry.corso,
+        oidCorso: entry.oidCorso ?? null,
+        oidCorsi: Array.isArray(entry.oidCorsi) ? entry.oidCorsi[0] ?? null : (entry.oidCorsi as string) ?? null,
+        anno: entry.anno,
+        gruppo: entry.gruppo ?? null,
+        aula: entry.aula ?? '',
+        docente: entry.docente ?? '',
+        start: startISO,
+        end: endISO,
+        note: entry.note ?? null,
+        corsoStudio: entry.corsoStudio ?? corsoStudio,
+      })
+    }
+  }
+  return out
+}
+
 export interface DbLesson {
   title: string
   start_time: string
@@ -161,7 +215,12 @@ export async function fetchJsonFromGitHub(
   try {
     const res = await fetch(url)
     if (!res.ok) return null
-    return await res.json()
+    const data: unknown = await res.json()
+    const platformCourse = CORSO_TO_PLATFORM[corso] ?? corso
+    if (isNuovoFormat(data)) {
+      return expandNuovoToJsonLessons(data, platformCourse)
+    }
+    return data as JsonLesson[]
   } catch (e) {
     console.error(`Fetch failed ${url}:`, e)
     return null
