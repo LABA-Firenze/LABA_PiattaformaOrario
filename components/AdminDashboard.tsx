@@ -449,7 +449,7 @@ function OrariSyncTab({ onRefresh }: { onRefresh?: () => void }) {
   const [syncing, setSyncing] = useState(false)
   const [pushing, setPushing] = useState(false)
   const [clearing, setClearing] = useState(false)
-  const [result, setResult] = useState<{ total?: { imported: number; errors: number }; results: Array<{ corso: string; imported?: number; errors?: number; entries?: number; ok?: boolean; error?: string }> } | null>(null)
+  const [result, setResult] = useState<{ message?: string; total?: { imported: number; errors: number }; results: Array<{ corso: string; imported?: number; errors?: number; entries?: number; ok?: boolean; error?: string }> } | null>(null)
   const [resultType, setResultType] = useState<'sync' | 'push' | 'clear' | null>(null)
 
   const handleSync = async (clearFirst = false) => {
@@ -601,7 +601,7 @@ function OrariSyncTab({ onRefresh }: { onRefresh?: () => void }) {
           )}
           {resultType === 'clear' && (
             <p className="text-sm text-gray-600 mb-2">
-              {(result as { message?: string }).message ?? 'Tutti gli orari sono stati eliminati.'}
+              {result.message ?? 'Tutti gli orari sono stati eliminati.'}
             </p>
           )}
           <div className="max-h-48 overflow-y-auto text-sm">
