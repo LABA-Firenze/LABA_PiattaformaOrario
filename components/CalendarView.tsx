@@ -123,9 +123,10 @@ export default function CalendarView({ initialLocation }: CalendarViewProps = {}
     // eslint-disable-next-line react-hooks/exhaustive-deps -- load when filters/date change
   }, [filterCourse, filterYear, selectedLocation, currentDate])
 
-  // Aggiorna ogni secondo per la linea "ora attuale" (posizione precisa)
-  const [now, setNow] = useState(() => new Date())
+  // Ora attuale: solo dal client (evita linea sbagliata per timezone server UTC)
+  const [now, setNow] = useState<Date | null>(null)
   useEffect(() => {
+    setNow(new Date())
     const interval = setInterval(() => setNow(new Date()), 1000)
     return () => clearInterval(interval)
   }, [])
@@ -354,7 +355,7 @@ export default function CalendarView({ initialLocation }: CalendarViewProps = {}
               {timeSlots.map((time, timeIndex) => {
                 const isHour = time.endsWith(':00')
                 const rowHeight = 45
-                const showNowLine = isSameDay(currentDate, now)
+                const showNowLine = now !== null && isSameDay(currentDate, now)
                 const nowPosSlots = showNowLine ? (() => {
                   const pos = getCurrentTimeLinePositionPx(rowHeight)
                   if (pos == null) return null
