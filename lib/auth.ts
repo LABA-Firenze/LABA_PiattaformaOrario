@@ -2,7 +2,11 @@ import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 import { supabaseAdmin } from './supabase'
 
-const secret = process.env.JWT_SECRET || 'laba-secret-key-change-in-production'
+const secret = process.env.JWT_SECRET
+
+if (!secret) {
+  throw new Error('JWT_SECRET is required')
+}
 
 export interface AdminUser {
   email: string
