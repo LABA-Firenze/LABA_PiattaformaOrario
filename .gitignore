@@ -38,3 +38,6 @@ next-env.d.ts
 # database
 /data
 
+# local workspace directory marker
+LABA_PiattaformaOrario/
+
