@@ -2,11 +2,15 @@ import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 import { supabaseAdmin } from './supabase'
 
-const secret = process.env.JWT_SECRET
-
-if (!secret) {
-  throw new Error('JWT_SECRET is required')
+function getRequiredEnv(name: string): string {
+  const value = process.env[name]
+  if (!value) {
+    throw new Error(`${name} is required`)
+  }
+  return value
 }
+
+const secret = getRequiredEnv('JWT_SECRET')
 
 export interface AdminUser {
   email: string
